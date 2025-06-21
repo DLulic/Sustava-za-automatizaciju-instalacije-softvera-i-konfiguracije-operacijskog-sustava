@@ -1,0 +1,245 @@
+[
+    {
+        "name": "Allow Cortana",
+        "regPath": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+        "regName": "AllowCortana",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Allow Windows Ink Workspace",
+        "regPath": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\WindowsInkWorkspace",
+        "regName": "AllowWindowsInkWorkspace",
+        "regValue": 0,
+        "regValueRevert": 1,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Enable news and interests on taskbar",
+        "regPath": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Feeds",
+        "regName": "EnableFeeds",
+        "regValue": 0,
+        "regValueRevert": 1,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Disable changing color scheme",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+        "regName": "NoChangingColorScheme",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent changing theme",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+        "regName": "NoChangingTheme",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent changing visual style for windows and buttons",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+        "regName": "NoChangingVisualStyle",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent changing font size",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+        "regName": "NoChangingFontSize",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent changing color and appearance",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+        "regName": "NoChangingColorAndAppearance",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent changing desktop background",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+        "regName": "NoChangingDesktopBackground",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent changing desktop icons",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+        "regName": "NoChangingDesktopIcons",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent changing mouse pointers",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+        "regName": "NoChangingMousePointers",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent changing screen saver",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+        "regName": "NoChangingScreenSaver",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent changing screen saver",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop",
+        "regName": "ScreenSaverIsSecure",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Desktop Wallpaper",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop",
+        "regName": "Wallpaper",
+        "regValue": "C:\\Users\\Admin\\Pictures\\veleri-background.png",
+        "regValueRevert": "",
+        "type": "String",
+        "enable": true
+    },
+    {
+        "name": "Desktop Wallpaper Style",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop",
+        "regName": "WallpaperStyle",
+        "regValue": 6,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Tile Desktop Wallpaper",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop",
+        "regName": "TileWallpaper",
+        "regValue": 0,
+        "regValueRevert": 1,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Remove the People Bar from the taskbar",
+        "regPath": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\People",
+        "regName": "PeopleBand",
+        "regValue": 0,
+        "regValueRevert": 1,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Lock the taskbar",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer",
+        "regName": "TaskbarLockAll",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent users from customizing their start screen",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer",
+        "regName": "LockedStartLayout",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent changes to taskbar and start menu settings",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer",
+        "regName": "NoChangeStartMenu",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Do not allow pinning programs to the taskbar",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer",
+        "regName": "NoPinningToTaskbar",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Lock all taskbar settings",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer",
+        "regName": "LockTaskbar",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent users from adding toolbars to the taskbar",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer",
+        "regName": "NoToolbarsOnTaskbar",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent users from moving taskbar buttons",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer",
+        "regName": "NoMovingBands",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent users from dragging taskbar buttons",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer",
+        "regName": "NoCloseDragDropBands",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent users from resizing the taskbar",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer",
+        "regName": "NoResizeTaskbar",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    },
+    {
+        "name": "Prevent users from changing the start menu background",
+        "regPath": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer",
+        "regName": "NoChangeStartMenuBackground",
+        "regValue": 1,
+        "regValueRevert": 0,
+        "type": "DWORD",
+        "enable": true
+    }
+]

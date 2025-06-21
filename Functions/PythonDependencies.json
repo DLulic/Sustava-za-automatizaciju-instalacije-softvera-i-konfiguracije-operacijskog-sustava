@@ -1,0 +1,7 @@
+{
+    "dependencies": [
+        "Pillow",
+        "PyQt5",
+        "jupyterlab"
+    ]
+}

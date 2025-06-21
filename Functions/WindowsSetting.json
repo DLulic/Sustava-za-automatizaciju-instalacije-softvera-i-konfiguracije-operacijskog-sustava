@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Aktiviranje Windows-a",
+        "command": "slmgr.vbs /ipk <Your-Product-Key> && slmgr.vbs /ato",
+        "enable": false
+    },
+    {
+        "name": "Kreiraj korisnika 'Korisnik'",
+        "command": "net user Korisnik \"\" /add",
+        "enable": true
+    },
+    {
+        "name": "Promijeni ime računala (hostname)",
+        "command": "Rename-Computer -NewName <NewComputerName>",
+        "enable": false
+    },
+    {
+        "name": "Onemogući sleep i isključoivanje zaslona",
+        "command": "powercfg -change -monitor-timeout-ac 0 && powercfg -change -monitor-timeout-dc 0 && powercfg -change -standby-timeout-ac 0 && powercfg -change -standby-timeout-dc 0 && powercfg -change -hibernate-timeout-ac 0 && powercfg -change -hibernate-timeout-dc 0",
+        "enable": true
+    }
+]
