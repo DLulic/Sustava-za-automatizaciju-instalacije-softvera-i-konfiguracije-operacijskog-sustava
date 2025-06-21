@@ -11,6 +11,9 @@ from .InstallProgramsPage import update_programs_tasks
 class MainPage(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
+        self.auto_install_triggered = set()
+        self.active_tab_index = 0
+        self.task_colors = {}
 
         # Main layout: left for tabs, right for tasks
         self.columnconfigure(1, weight=1)
@@ -54,29 +57,49 @@ class MainPage(tk.Frame):
 
         self.change_tab(0, initial_load=True)
 
+    def set_task_status(self, task_name, task_index, color):
+        """Updates the color of a task in the list and stores it."""
+        if self.active_tab_index not in self.task_colors:
+            self.task_colors[self.active_tab_index] = {}
+        
+        # Check if the task is still visible at the given index
+        if self.tasks_list.size() > task_index and self.tasks_list.get(task_index) == task_name:
+            self.task_colors[self.active_tab_index][task_name] = color
+            self.tasks_list.itemconfig(task_index, {'bg': color})
+
     def change_tab(self, tab_index, initial_load=False):
         """Change the active tab and update the task list."""
+        self.active_tab_index = tab_index
         self.set_active_tab(tab_index)
+        
+        # Decide if auto-install should run for this tab
+        should_auto_install = (tab_index in [2, 3, 4]) and (tab_index not in self.auto_install_triggered)
+
         if tab_index == 0:
             update_main_tasks(self, initial_load)
         elif tab_index == 1:
             update_group_policy_tasks(self, initial_load)
         elif tab_index == 2:
-            update_dependencies_tasks(self, initial_load)
+            update_dependencies_tasks(self, initial_load, auto_install=should_auto_install)
         elif tab_index == 3:
-            update_python_dependencies_tasks(self, initial_load)
+            update_python_dependencies_tasks(self, initial_load, auto_install=should_auto_install)
         elif tab_index == 4:
-            update_programs_tasks(self, initial_load)
+            update_programs_tasks(self, initial_load, auto_install=should_auto_install)
         else:
-            # Clear tasks for other tabs for now
             self.update_tasks([])
+
+        if should_auto_install:
+            self.auto_install_triggered.add(tab_index)
 
     def update_tasks(self, tasks):
         """Update the tasks list with a new list of task names."""
         self.tasks_list.delete(0, tk.END)
-        for task in tasks:
+        task_colors_for_tab = self.task_colors.get(self.active_tab_index, {})
+        for i, task in enumerate(tasks):
             self.tasks_list.insert(tk.END, task)
-        
+            if task in task_colors_for_tab:
+                self.tasks_list.itemconfig(i, {'bg': task_colors_for_tab[task]})
+
     def set_active_tab(self, tab_index):
         """Sets the active tab by highlighting it."""
         for i, lbl in enumerate(self.tab_labels):
