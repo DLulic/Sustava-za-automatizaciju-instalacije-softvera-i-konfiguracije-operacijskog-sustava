@@ -14,6 +14,7 @@ class MainPage(tk.Frame):
         self.auto_install_triggered = set()
         self.active_tab_index = 0
         self.task_colors = {}
+        self.tour_in_progress = True
 
         # Main layout: left for tabs, right for tasks
         self.columnconfigure(1, weight=1)
@@ -36,7 +37,7 @@ class MainPage(tk.Frame):
                 fg="#fff"
             )
             lbl.pack(fill="x", pady=2)
-            lbl.bind("<Button-1>", lambda event, index=i: self.change_tab(index, initial_load=False))
+            lbl.bind("<Button-1>", lambda event, index=i: self.on_tab_click(index))
             self.tab_labels.append(lbl)
 
         # Tasks on the right with scrollbar
@@ -56,6 +57,18 @@ class MainPage(tk.Frame):
         self.tasks_list.config(yscrollcommand=scrollbar.set)
 
         self.change_tab(0, initial_load=True)
+
+    def on_tab_click(self, tab_index):
+        """Handles a manual tab click, respecting the guided tour status."""
+        if not self.tour_in_progress:
+            self.change_tab(tab_index, initial_load=False)
+        else:
+            print("Automated setup in progress. Please wait.")
+
+    def end_guided_tour(self):
+        """Marks the end of the guided tour, enabling manual navigation."""
+        print("Automated setup complete. You can now navigate freely.")
+        self.tour_in_progress = False
 
     def set_task_status(self, task_name, task_index, color):
         """Updates the color of a task in the list and stores it."""
@@ -84,7 +97,8 @@ class MainPage(tk.Frame):
         elif tab_index == 3:
             update_python_dependencies_tasks(self, initial_load, auto_install=should_auto_install)
         elif tab_index == 4:
-            update_programs_tasks(self, initial_load, auto_install=should_auto_install)
+            completion_callback = self.end_guided_tour if initial_load else None
+            update_programs_tasks(self, initial_load, auto_install=should_auto_install, tour_completion_callback=completion_callback)
         else:
             self.update_tasks([])
 

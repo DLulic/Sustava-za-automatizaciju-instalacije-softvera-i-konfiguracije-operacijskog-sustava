@@ -3,7 +3,7 @@ import os
 import subprocess
 import threading
 
-def _install_all_programs_worker(page_instance, tasks_to_install, initial_load=False):
+def _install_all_programs_worker(page_instance, tasks_to_install, initial_load=False, tour_completion_callback=None):
     """
     Worker function to install all programs in a separate thread.
     """
@@ -54,10 +54,10 @@ def _install_all_programs_worker(page_instance, tasks_to_install, initial_load=F
     except Exception as e:
         print(f"An error occurred during program installation: {e}")
     finally:
-        if initial_load:
-            page_instance.after(1200, lambda: page_instance.change_tab(4, initial_load=True))
+        if tour_completion_callback:
+            page_instance.after(0, tour_completion_callback)
 
-def update_programs_tasks(page_instance, initial_load=False, auto_install=False):
+def update_programs_tasks(page_instance, initial_load=False, auto_install=False, tour_completion_callback=None):
     """Load tasks from DependenciesWinget.json and optionally auto-install them."""
     json_path = os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
@@ -77,7 +77,7 @@ def update_programs_tasks(page_instance, initial_load=False, auto_install=False)
             if auto_install:
                 threading.Thread(
                     target=_install_all_programs_worker,
-                    args=(page_instance, task_names, initial_load),
+                    args=(page_instance, task_names, initial_load, tour_completion_callback),
                     daemon=True
                 ).start()
     except Exception as e:
