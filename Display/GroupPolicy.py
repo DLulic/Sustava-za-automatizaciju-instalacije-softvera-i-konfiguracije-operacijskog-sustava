@@ -32,20 +32,27 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
                     print(f"Missing registry path or name for '{task_name}'.")
                     task_successful = False
                 else:
-                    # Ensure the registry key exists (wrap path in double quotes)
-                    create_key_cmd = f"New-Item -Path \"{reg_path}\" -Force"
-                    try:
-                        result_create = subprocess.run(
-                            ["powershell.exe", "-Command", create_key_cmd],
-                            capture_output=True, text=True, shell=True
-                        )
-                        if result_create.returncode != 0:
-                            raise subprocess.CalledProcessError(
-                                returncode=result_create.returncode, cmd=create_key_cmd, output=result_create.stdout, stderr=result_create.stderr
+                    # Check if the key exists
+                    check_key_cmd = f"Test-Path -Path \"{reg_path}\""
+                    result_check = subprocess.run(
+                        ["powershell.exe", "-Command", check_key_cmd],
+                        capture_output=True, text=True, shell=True
+                    )
+                    if "True" not in result_check.stdout:
+                        # Only create if it does not exist
+                        create_key_cmd = f"New-Item -Path \"{reg_path}\" -Force"
+                        try:
+                            result_create = subprocess.run(
+                                ["powershell.exe", "-Command", create_key_cmd],
+                                capture_output=True, text=True, shell=True
                             )
-                    except subprocess.CalledProcessError as e:
-                        print(f"Failed to create registry key {reg_path}.\n--- PowerShell Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------")
-                        task_successful = False
+                            if result_create.returncode != 0:
+                                raise subprocess.CalledProcessError(
+                                    returncode=result_create.returncode, cmd=create_key_cmd, output=result_create.stdout, stderr=result_create.stderr
+                                )
+                        except subprocess.CalledProcessError as e:
+                            print(f"Failed to create registry key {reg_path}.\n--- PowerShell Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------")
+                            task_successful = False
                     # Use the raw reg_value from JSON
                     value_str = str(reg_value)
                     type_flag = "-Type DWord" if reg_type.upper() == "DWORD" else "-Type String"
