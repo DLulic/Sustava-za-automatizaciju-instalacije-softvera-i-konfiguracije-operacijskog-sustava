@@ -1,5 +1,15 @@
 import tkinter as tk
+from tkinter import messagebox
+import ctypes
+import sys
+import os
 from Display.MainPage import MainPage
+
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
 
 def open_start_page(root, content_frame):
     # Remove current widgets from the content frame
@@ -10,6 +20,21 @@ def open_start_page(root, content_frame):
     page.pack(fill="both", expand=True)
 
 def main():
+    if not is_admin():
+        # Relaunch the script with admin rights
+        params = ' '.join([f'"{arg}"' for arg in sys.argv])
+        try:
+            ctypes.windll.shell32.ShellExecuteW(
+                None, "runas", sys.executable, params, os.getcwd(), 1
+            )
+        except Exception as e:
+            tk.Tk().withdraw()
+            messagebox.showerror(
+                "Administrator Privileges Required",
+                f"Failed to elevate privileges: {e}"
+            )
+        sys.exit(0)
+
     root = tk.Tk()
     dark_mode = True  # Set to True for dark mode, False for light mode
     if dark_mode:
