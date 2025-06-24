@@ -2,17 +2,17 @@
     {
         "name": "Aktiviranje Windows-a",
         "command": "slmgr.vbs /ipk <Your-Product-Key> && slmgr.vbs /ato",
-        "enable": false
+        "enable": true
     },
     {
         "name": "Kreiraj korisnika 'Korisnik'",
         "command": "net user Korisnik \"\" /add",
-        "enable": true
+        "enable": false
     },
     {
         "name": "Promijeni ime računala (hostname)",
         "command": "Rename-Computer -NewName <NewComputerName>",
-        "enable": false
+        "enable": true
     },
     {
         "name": "Onemogući sleep i isključoivanje zaslona",

@@ -4,6 +4,7 @@ import ctypes
 import sys
 import os
 import datetime
+import json
 from Display.MainPage import MainPage
 
 # Redirect all output to a log file, creating it if it doesn't exist
@@ -72,10 +73,30 @@ def main():
     y = (screen_height // 2) - (window_height // 2)
     root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
+    # Dvorana input field
+    naziv_racunala_var = tk.StringVar()
+    naziv_racunala_label = tk.Label(content_frame, text="Naziv računala:")
+    naziv_racunala_label.pack(pady=(10, 0))
+    naziv_racunala_entry = tk.Entry(content_frame, textvariable=naziv_racunala_var, width=30)
+    naziv_racunala_entry.pack(pady=(0, 10))
+
     label = tk.Label(content_frame, text="Sustav za automatizaciju instalacije softvera", wraplength=350)
     label.pack(pady=20)
 
-    btn = tk.Button(content_frame, text="Pokreni", command=lambda: open_start_page(root, content_frame))
+    def start_main_page():
+        # Save dvorana_var to Storage/dvorana.json
+        storage_dir = os.path.join(os.path.dirname(__file__), 'Storage')
+        os.makedirs(storage_dir, exist_ok=True)
+        data_path = os.path.join(storage_dir, 'data.json')
+        with open(data_path, 'w', encoding='utf-8') as f:
+            json.dump({"Naziv računala": naziv_racunala_var.get()}, f, ensure_ascii=False, indent=2)
+        # Continue to main page
+        for widget in content_frame.winfo_children():
+            widget.destroy()
+        page = MainPage(content_frame)
+        page.pack(fill="both", expand=True)
+
+    btn = tk.Button(content_frame, text="Pokreni", command=start_main_page)
     btn.pack(pady=10)
 
     root.mainloop()
