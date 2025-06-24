@@ -92,7 +92,7 @@ class MainPage(tk.Frame):
         if tab_index == 0:
             update_main_tasks(self, initial_load)
         elif tab_index == 1:
-            update_group_policy_tasks(self, initial_load)
+            update_group_policy_tasks(self, initial_load, auto_install=should_auto_install)
         elif tab_index == 2:
             update_uninstall_programs_tasks(self, initial_load, auto_install=should_auto_install)
         elif tab_index == 3:
