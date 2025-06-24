@@ -3,7 +3,19 @@ from tkinter import messagebox
 import ctypes
 import sys
 import os
+import datetime
 from Display.MainPage import MainPage
+
+# Redirect all output to a log file, creating it if it doesn't exist
+log_path = os.path.join(os.path.dirname(__file__), 'app.log')
+if not os.path.exists(log_path):
+    with open(log_path, 'w', encoding='utf-8') as log_file:
+        log_file.write(f"\n--- App started at {datetime.datetime.now()} ---\n")
+else:
+    with open(log_path, 'a', encoding='utf-8') as log_file:
+        log_file.write(f"\n--- App started at {datetime.datetime.now()} ---\n")
+sys.stdout = open(log_path, 'a', encoding='utf-8')
+sys.stderr = open(log_path, 'a', encoding='utf-8')
 
 def is_admin():
     try:
