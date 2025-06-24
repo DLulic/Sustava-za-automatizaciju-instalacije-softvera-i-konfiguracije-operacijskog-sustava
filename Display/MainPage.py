@@ -87,7 +87,7 @@ class MainPage(tk.Frame):
         self.set_active_tab(tab_index)
         
         # Decide if auto-install should run for this tab
-        should_auto_install = (tab_index in [2, 3, 4, 5]) and (tab_index not in self.auto_install_triggered)
+        should_auto_install = (tab_index in [1, 2, 3, 4, 5]) and (tab_index not in self.auto_install_triggered)
 
         if tab_index == 0:
             update_main_tasks(self, initial_load)
