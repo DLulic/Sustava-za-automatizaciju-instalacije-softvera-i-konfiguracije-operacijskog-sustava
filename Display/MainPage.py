@@ -4,6 +4,7 @@ import json
 import os
 from .WindowsSettingsPage import update_main_tasks
 from .GroupPolicy import update_group_policy_tasks
+from .UninstallProgramsPage import update_uninstall_programs_tasks
 from .InstallDependencies import update_dependencies_tasks
 from .InstallPythonDependenciesPage import update_python_dependencies_tasks
 from .InstallProgramsPage import update_programs_tasks
@@ -21,7 +22,7 @@ class MainPage(tk.Frame):
         self.rowconfigure(0, weight=1)
 
         # Vertical tabs on the left (non-interactive)
-        tab_names = ["Postavljanje Windowsa", "Group Policy", "Instalacija dodataka", "Instalacija python dodataka", "Instalacija programa"]
+        tab_names = ["Postavljanje Windowsa", "Group Policy", "Brisanje programa", "Instalacija dodataka", "Instalacija python dodataka", "Instalacija programa"]
         tabs_frame = tk.Frame(self, bg="#222")
         tabs_frame.grid(row=0, column=0, sticky="ns", padx=(10, 5), pady=10)
         self.tab_labels = []
@@ -86,17 +87,19 @@ class MainPage(tk.Frame):
         self.set_active_tab(tab_index)
         
         # Decide if auto-install should run for this tab
-        should_auto_install = (tab_index in [2, 3, 4]) and (tab_index not in self.auto_install_triggered)
+        should_auto_install = (tab_index in [2, 3, 4, 5]) and (tab_index not in self.auto_install_triggered)
 
         if tab_index == 0:
             update_main_tasks(self, initial_load)
         elif tab_index == 1:
             update_group_policy_tasks(self, initial_load)
         elif tab_index == 2:
-            update_dependencies_tasks(self, initial_load, auto_install=should_auto_install)
+            update_uninstall_programs_tasks(self, initial_load, auto_install=should_auto_install)
         elif tab_index == 3:
-            update_python_dependencies_tasks(self, initial_load, auto_install=should_auto_install)
+            update_dependencies_tasks(self, initial_load, auto_install=should_auto_install)
         elif tab_index == 4:
+            update_python_dependencies_tasks(self, initial_load, auto_install=should_auto_install)
+        elif tab_index == 5:
             completion_callback = self.end_guided_tour if initial_load else None
             update_programs_tasks(self, initial_load, auto_install=should_auto_install, tour_completion_callback=completion_callback)
         else:

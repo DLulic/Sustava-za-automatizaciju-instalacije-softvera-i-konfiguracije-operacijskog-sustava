@@ -56,7 +56,7 @@ def _install_all_dependencies_worker(page_instance, tasks_to_install, initial_lo
         print(f"An error occurred during installation: {e}")
     finally:
         if initial_load:
-            page_instance.after(1200, lambda: page_instance.change_tab(3, initial_load=True))
+            page_instance.after(1200, lambda: page_instance.change_tab(4, initial_load=True))
 
 def update_dependencies_tasks(page_instance, initial_load=False, auto_install=False):
     """Load tasks from DependenciesWinget.json and optionally auto-install them."""

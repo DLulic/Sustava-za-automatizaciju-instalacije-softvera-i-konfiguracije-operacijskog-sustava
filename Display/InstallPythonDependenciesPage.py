@@ -34,7 +34,7 @@ def _install_all_python_deps_worker(page_instance, tasks_to_install, initial_loa
         schedule_ui_update(final_color)
     
     if initial_load:
-        page_instance.after(1200, lambda: page_instance.change_tab(4, initial_load=True))
+        page_instance.after(1200, lambda: page_instance.change_tab(5, initial_load=True))
 
 def update_python_dependencies_tasks(page_instance, initial_load=False, auto_install=False):
     """Load tasks from PythonDependencies.json and optionally auto-install them."""

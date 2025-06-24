@@ -1,0 +1,82 @@
+[
+    {
+        "name": "OneDrive",
+        "name_program": "OneDrive"
+    },
+    {
+        "name": "Clipchamp",
+        "name_program": "Clipchamp"
+    },
+    {
+        "name": "Teams",
+        "name_program": "Teams"
+    },
+    {
+        "name": "News",
+        "name_program": "BingNews"
+    },
+    {
+        "name": "Bing",
+        "name_program": "BingSearch"
+    },
+    {
+        "name": "Copilot",
+        "name_program": "Copilot"
+    },
+    {
+        "name": "Game Assist",
+        "name_program": "GameAssist"
+    },
+    {
+        "name": "Xbox",
+        "name_program": "GamingApp"
+    },
+    {
+        "name": "GetHelp",
+        "name_program": "GetHelp"
+    },
+    {
+        "name": "Office 365",
+        "name_program": "MicrosoftOfficeHub"
+    },
+    {
+        "name": "Solitare Collection",
+        "name_program": "SolitaireCollection"
+    },
+    {
+        "name": "StickyNotes",
+        "name_program": "StickyNotes"
+    },
+    {
+        "name": "Outlook",
+        "name_program": "OutlookForWindows"
+    },
+    {
+        "name": "Power Automate",
+        "name_program": "PowerAutomate"
+    },
+    {
+        "name": "Start Experiences",
+        "name_program": "StartExperiences"
+    },
+    {
+        "name": "Todos",
+        "name_program": "Todos"
+    },
+    {
+        "name": "FeedbackHub",
+        "name_program": "FeedbackHub"
+    },
+    {
+        "name": "Xbox TCUI",
+        "name_program": "TCUI"
+    },
+    {
+        "name": "Game Bar",
+        "name_program": "XboxGamingOverlay"
+    },
+    {
+        "Name": "Your Phone",
+        "name_program": "YourPhone"
+    }
+]
