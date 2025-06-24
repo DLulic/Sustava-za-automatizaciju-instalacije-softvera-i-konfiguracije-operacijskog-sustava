@@ -35,7 +35,7 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
                 if source == "Winget":
                     try:
                         result = subprocess.run(
-                            ["winget", "uninstall", "--id", program_name, "--accept-source-agreements", "--accept-package-agreements"],
+                            ["winget", "uninstall", "--id", program_name],
                             capture_output=True, text=True, shell=True
                         )
                         # Winget success codes: 0 (success), 0x8A15002B (already uninstalled), etc.
