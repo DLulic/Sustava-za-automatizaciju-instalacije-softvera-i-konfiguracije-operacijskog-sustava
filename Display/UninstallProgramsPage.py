@@ -39,7 +39,7 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
                             capture_output=True, text=True, shell=True
                         )
                         # Winget success codes: 0 (success), 0x8A15002B (already uninstalled), etc.
-                        success_codes = {0, -1978335148, -1978335189, -1978334963, -1978334962, -1978335189, -1978335211, -1978335209, 0x8A150054, 0x8A15010D, 0x8A15010E, 0x8a15002b, 0x8A150015, 0x8A150017}
+                        success_codes = {0, -1978335148, -1978335189, -1978334963, -1978334962, -1978335189, -1978335211, -1978335209, -1978335179, 0x8A150054, 0x8A15010D, 0x8A15010E, 0x8a15002b, 0x8A150015, 0x8A150017, 0x8A150035}
                         if result.returncode not in success_codes:
                             raise subprocess.CalledProcessError(
                                 returncode=result.returncode, cmd=result.args, output=result.stdout, stderr=result.stderr
