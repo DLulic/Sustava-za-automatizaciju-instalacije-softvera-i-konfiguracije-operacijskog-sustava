@@ -10,12 +10,13 @@ from .InstallPythonDependenciesPage import update_python_dependencies_tasks
 from .InstallProgramsPage import update_programs_tasks
 
 class MainPage(tk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, on_automation_finished=None):
         super().__init__(parent)
         self.auto_install_triggered = set()
         self.active_tab_index = 0
         self.task_colors = {}
         self.tour_in_progress = True
+        self.on_automation_finished = on_automation_finished
 
         # Main layout: left for tabs, right for tasks
         self.columnconfigure(1, weight=1)
@@ -70,6 +71,8 @@ class MainPage(tk.Frame):
         """Marks the end of the guided tour, enabling manual navigation."""
         print("Automated setup complete. You can now navigate freely.")
         self.tour_in_progress = False
+        if self.on_automation_finished:
+            self.on_automation_finished()
 
     def set_task_status(self, task_name, task_index, color):
         """Updates the color of a task in the list and stores it."""

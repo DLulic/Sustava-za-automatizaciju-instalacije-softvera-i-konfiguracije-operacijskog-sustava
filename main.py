@@ -67,9 +67,9 @@ def main():
     main_frame = tk.Frame(notebook)
     notebook.add(main_frame, text="Početna")
 
-    # Second tab: automation workflow
+    # Second tab: automation workflow (add later)
     automation_frame = tk.Frame(notebook)
-    notebook.add(automation_frame, text="Automatizacija")
+    automation_tab_added = [False]  # Use a list for mutability in closure
 
     # --- Main tab content ---
     naziv_racunala_var = tk.StringVar()
@@ -81,6 +81,10 @@ def main():
     label = tk.Label(main_frame, text="Sustav za automatizaciju instalacije softvera", wraplength=350)
     label.pack(pady=20)
 
+    def on_automation_finished():
+        btn.config(state='normal')
+        naziv_racunala_entry.config(state='normal')
+
     def start_main_page():
         # Save to Storage/data.json
         storage_dir = os.path.join(os.path.dirname(__file__), 'Storage')
@@ -88,12 +92,18 @@ def main():
         data_path = os.path.join(storage_dir, 'data.json')
         with open(data_path, 'w', encoding='utf-8') as f:
             json.dump({"Naziv računala": naziv_racunala_var.get()}, f, ensure_ascii=False, indent=2)
+        # Add automation tab if not already present
+        if not automation_tab_added[0]:
+            notebook.add(automation_frame, text="Automatizacija")
+            automation_tab_added[0] = True
         # Switch to automation tab
         notebook.select(1)
         # Re-initialize MainPage each time
         for widget in automation_frame.winfo_children():
             widget.destroy()
-        page = MainPage(automation_frame)
+        btn.config(state='disabled')
+        naziv_racunala_entry.config(state='disabled')
+        page = MainPage(automation_frame, on_automation_finished=on_automation_finished)
         page.pack(fill="both", expand=True)
 
     btn = tk.Button(main_frame, text="Pokreni", command=start_main_page)
