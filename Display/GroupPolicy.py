@@ -32,8 +32,8 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
                     print(f"Missing registry path or name for '{task_name}'.")
                     task_successful = False
                 else:
-                    # Ensure the registry key exists
-                    create_key_cmd = f"New-Item -Path '{reg_path}' -Force"
+                    # Ensure the registry key exists (wrap path in double quotes)
+                    create_key_cmd = f"New-Item -Path \"{reg_path}\" -Force"
                     try:
                         result_create = subprocess.run(
                             ["powershell.exe", "-Command", create_key_cmd],
@@ -49,7 +49,8 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
                     # Use the raw reg_value from JSON
                     value_str = str(reg_value)
                     type_flag = "-Type DWord" if reg_type.upper() == "DWORD" else "-Type String"
-                    command = f"Set-ItemProperty -Path '{reg_path}' -Name '{reg_name}' -Value {value_str} {type_flag} -Force"
+                    # Wrap reg_path in double quotes for Set-ItemProperty
+                    command = f"Set-ItemProperty -Path \"{reg_path}\" -Name '{reg_name}' -Value {value_str} {type_flag} -Force"
                     try:
                         result = subprocess.run(
                             ["powershell.exe", "-Command", command],
