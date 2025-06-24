@@ -32,13 +32,23 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
                     print(f"Missing registry path or name for '{task_name}'.")
                     task_successful = False
                 else:
-                    # Build PowerShell command
-                    if reg_type.upper() == "DWORD":
-                        value_str = str(int(reg_value))
-                        type_flag = "-Type DWord"
-                    else:
-                        value_str = f'\"{reg_value}\"' if isinstance(reg_value, str) else str(reg_value)
-                        type_flag = "-Type String"
+                    # Ensure the registry key exists
+                    create_key_cmd = f"New-Item -Path '{reg_path}' -Force"
+                    try:
+                        result_create = subprocess.run(
+                            ["powershell.exe", "-Command", create_key_cmd],
+                            capture_output=True, text=True, shell=True
+                        )
+                        if result_create.returncode != 0:
+                            raise subprocess.CalledProcessError(
+                                returncode=result_create.returncode, cmd=create_key_cmd, output=result_create.stdout, stderr=result_create.stderr
+                            )
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to create registry key {reg_path}.\n--- PowerShell Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------")
+                        task_successful = False
+                    # Use the raw reg_value from JSON
+                    value_str = str(reg_value)
+                    type_flag = "-Type DWord" if reg_type.upper() == "DWORD" else "-Type String"
                     command = f"Set-ItemProperty -Path '{reg_path}' -Name '{reg_name}' -Value {value_str} {type_flag} -Force"
                     try:
                         result = subprocess.run(
@@ -55,6 +65,16 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
                         task_successful = False
             final_color = '#2E7D32' if task_successful else '#C62828'
             schedule_ui_update(final_color)
+        # Run gpupdate /force at the end
+        try:
+            print("Running gpupdate /force ...")
+            result_gpupdate = subprocess.run(
+                ["gpupdate", "/force"],
+                capture_output=True, text=True, shell=True
+            )
+            print(f"gpupdate /force output:\nSTDOUT: {result_gpupdate.stdout}\nSTDERR: {result_gpupdate.stderr}")
+        except Exception as e:
+            print(f"Failed to run gpupdate /force: {e}")
     except Exception as e:
         print(f"Error applying group policy tasks: {e}")
     finally:
