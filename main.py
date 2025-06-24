@@ -33,11 +33,12 @@ def open_start_page(root, content_frame):
 
 def main():
     if not is_admin():
-        # Relaunch the script with admin rights
+        # Use pythonw.exe for no console
+        pythonw = sys.executable.replace("python.exe", "pythonw.exe")
         params = ' '.join([f'"{arg}"' for arg in sys.argv])
         try:
             ctypes.windll.shell32.ShellExecuteW(
-                None, "runas", sys.executable, params, os.getcwd(), 1
+                None, "runas", pythonw, params, os.getcwd(), 1
             )
         except Exception as e:
             tk.Tk().withdraw()
