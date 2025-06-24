@@ -30,24 +30,42 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
                 task_successful = False
             else:
                 program_name = target_task.get("name_program")
-                print(f"Uninstalling {program_name}...")
-                command = f"Get-AppxPackage *{program_name}* | Remove-AppxPackage"
-                try:
-                    result = subprocess.run(
-                        ["powershell.exe", "-Command", command],
-                        capture_output=True, text=True, shell=True
-                    )
-                    if result.returncode != 0:
-                        # If the command fails, it might be because the app is already uninstalled, which we treat as success.
-                        # We check stderr to be more specific.
-                        if "is not recognized" not in result.stderr and "Cannot find path" not in result.stderr and "No object found" not in result.stderr:
-                             raise subprocess.CalledProcessError(
-                                returncode=result.returncode, cmd=command, output=result.stdout, stderr=result.stderr
+                source = target_task.get("Source", "AppxPackage")
+                print(f"Uninstalling {program_name} using {source}...")
+                if source == "Winget":
+                    try:
+                        result = subprocess.run(
+                            ["winget", "uninstall", "--id", program_name, "--accept-source-agreements", "--accept-package-agreements"],
+                            capture_output=True, text=True, shell=True
+                        )
+                        # Winget success codes: 0 (success), 0x8A15002B (already uninstalled), etc.
+                        success_codes = {0, -1978335148, -1978335189, -1978334963, -1978334962, -1978335189, 0x8A150054, 0x8A15010D, 0x8A15010E, 0x8a15002b}
+                        if result.returncode not in success_codes:
+                            raise subprocess.CalledProcessError(
+                                returncode=result.returncode, cmd=result.args, output=result.stdout, stderr=result.stderr
                             )
-                    print(f"Successfully uninstalled or already absent: {program_name}.")
-                except subprocess.CalledProcessError as e:
-                    print(f"Failed to uninstall {program_name}.\n--- PowerShell Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------")
-                    task_successful = False
+                        print(f"Successfully uninstalled or already absent: {program_name}.")
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to uninstall {program_name} (winget).\n--- Winget Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------")
+                        task_successful = False
+                else:
+                    command = f"Get-AppxPackage *{program_name}* | Remove-AppxPackage"
+                    try:
+                        result = subprocess.run(
+                            ["powershell.exe", "-Command", command],
+                            capture_output=True, text=True, shell=True
+                        )
+                        if result.returncode != 0:
+                            # If the command fails, it might be because the app is already uninstalled, which we treat as success.
+                            # We check stderr to be more specific.
+                            if "is not recognized" not in result.stderr and "Cannot find path" not in result.stderr and "No object found" not in result.stderr:
+                                 raise subprocess.CalledProcessError(
+                                    returncode=result.returncode, cmd=command, output=result.stdout, stderr=result.stderr
+                                )
+                        print(f"Successfully uninstalled or already absent: {program_name}.")
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to uninstall {program_name} (AppxPackage).\n--- PowerShell Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------")
+                        task_successful = False
             
             final_color = '#2E7D32' if task_successful else '#C62828'
             schedule_ui_update(final_color)

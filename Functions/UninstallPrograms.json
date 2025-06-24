@@ -1,82 +1,107 @@
 [
     {
-        "name": "OneDrive",
-        "name_program": "OneDrive"
+        "name": "OneDrive 1",
+        "name_program": "OneDrive",
+        "Source": "AppxPackage"
+    },
+    {
+        "name": "OneDrive 2",
+        "name_program": "Microsoft.OneDrive",
+        "Source": "Winget"
     },
     {
         "name": "Clipchamp",
-        "name_program": "Clipchamp"
+        "name_program": "Clipchamp",
+        "Source": "AppxPackage"
     },
     {
         "name": "Teams",
-        "name_program": "Teams"
+        "name_program": "Teams",
+        "Source": "AppxPackage"
     },
     {
         "name": "News",
-        "name_program": "BingNews"
+        "name_program": "BingNews",
+        "Source": "AppxPackage"
     },
     {
         "name": "Bing",
-        "name_program": "BingSearch"
+        "name_program": "BingSearch",
+        "Source": "AppxPackage"
     },
     {
         "name": "Copilot",
-        "name_program": "Copilot"
+        "name_program": "Copilot",
+        "Source": "AppxPackage"
     },
     {
         "name": "Game Assist",
-        "name_program": "GameAssist"
+        "name_program": "GameAssist",
+        "Source": "AppxPackage"
     },
     {
         "name": "Xbox",
-        "name_program": "GamingApp"
+        "name_program": "GamingApp",
+        "Source": "AppxPackage"
     },
     {
         "name": "GetHelp",
-        "name_program": "GetHelp"
+        "name_program": "GetHelp",
+        "Source": "AppxPackage"
     },
     {
         "name": "Office 365",
-        "name_program": "MicrosoftOfficeHub"
+        "name_program": "MicrosoftOfficeHub",
+        "Source": "AppxPackage"
     },
     {
         "name": "Solitare Collection",
-        "name_program": "SolitaireCollection"
+        "name_program": "SolitaireCollection",
+        "Source": "AppxPackage"
     },
     {
         "name": "StickyNotes",
-        "name_program": "StickyNotes"
+        "name_program": "StickyNotes",
+        "Source": "AppxPackage"
     },
     {
         "name": "Outlook",
-        "name_program": "OutlookForWindows"
+        "name_program": "OutlookForWindows",
+        "Source": "AppxPackage"
     },
     {
         "name": "Power Automate",
-        "name_program": "PowerAutomate"
+        "name_program": "PowerAutomate",
+        "Source": "AppxPackage"
     },
     {
         "name": "Start Experiences",
-        "name_program": "StartExperiences"
+        "name_program": "StartExperiences",
+        "Source": "AppxPackage"
     },
     {
         "name": "Todos",
-        "name_program": "Todos"
+        "name_program": "Todos",
+        "Source": "AppxPackage"
     },
     {
         "name": "FeedbackHub",
-        "name_program": "FeedbackHub"
+        "name_program": "FeedbackHub",
+        "Source": "AppxPackage"
     },
     {
         "name": "Xbox TCUI",
-        "name_program": "TCUI"
+        "name_program": "TCUI",
+        "Source": "AppxPackage"
     },
     {
         "name": "Game Bar",
-        "name_program": "XboxGamingOverlay"
+        "name_program": "XboxGamingOverlay",
+        "Source": "AppxPackage"
     },
     {
-        "Name": "Your Phone",
-        "name_program": "YourPhone"
+        "name": "Your Phone",
+        "name_program": "YourPhone",
+        "Source": "AppxPackage"
     }
 ]
