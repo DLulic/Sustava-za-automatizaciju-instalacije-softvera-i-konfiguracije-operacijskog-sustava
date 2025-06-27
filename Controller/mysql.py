@@ -42,9 +42,6 @@ def close_mysql_connection():
         _mysql_conn = None
 
 def select_all_users():
-    """
-    Returns all rows from the USER table as a list of dictionaries.
-    """
     if _mysql_conn is None:
         raise RuntimeError("MySQL connection is not open.")
     cursor = _mysql_conn.cursor(dictionary=True)
@@ -52,5 +49,132 @@ def select_all_users():
         cursor.execute("SELECT * FROM USER")
         results = cursor.fetchall()
         return results
-    finally:
-        cursor.close()
+    except Exception as e:
+        print(f"Error: {e}")
+
+def select_all_programs():
+    if _mysql_conn is None:
+        raise RuntimeError("MySQL connection is not open.")
+    cursor = _mysql_conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM PROGRAMS")
+        results = cursor.fetchall()
+
+        json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Functions', 'DependenciesWinget.json')
+        programs_dict = {}
+        for prog in results:
+            # Map fields according to the required mapping
+            name = prog.get("program_name")
+            if not name:
+                continue
+            mapped = {
+                "id": prog.get("program_id"),
+                "category": prog.get("program_category"),
+                "Name": name,
+                "Desc": prog.get("program_desc"),
+                "winget": prog.get("program_package"),
+                "enable": bool(prog.get("program_enabled"))
+            }
+            programs_dict[name] = mapped
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(programs_dict, f, ensure_ascii=False, indent=4)
+
+        return results
+    except Exception as e:
+        print(f"Error: {e}")
+
+def select_all_group_policy():
+    if _mysql_conn is None:
+        raise RuntimeError("MySQL connection is not open.")
+    cursor = _mysql_conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM POLICIES")
+        results = cursor.fetchall()
+
+        json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Functions', 'GroupPolicy.json')
+        policies_list = []
+        for prog in results:
+            mapped = {
+                "id": prog.get("policies_id"),
+                "name": prog.get("policies_name"),
+                "regPath": prog.get("policies_regPath"),
+                "regValue": prog.get("policies_regVaule"),
+                "regValueRevert": prog.get("policies_regVauleRevert"),
+                "type": prog.get("policies_type"),
+                "enable": bool(prog.get("policies_enable")),
+            }
+            policies_list.append(mapped)
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(policies_list, f, ensure_ascii=False, indent=4)
+
+        return results
+    except Exception as e:
+        print(f"Error: {e}")
+
+def select_all_python_dependencies():
+    if _mysql_conn is None:
+        raise RuntimeError("MySQL connection is not open.")
+    cursor = _mysql_conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT python_name FROM PYTHON")
+        results = cursor.fetchall()
+
+        json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Functions', 'PythonDependencies.json')
+        dependencies = [prog.get("python_name") for prog in results if prog.get("python_name")]
+        out_dict = {"dependencies": dependencies}
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(out_dict, f, ensure_ascii=False, indent=4)
+
+        return results
+    except Exception as e:
+        print(f"Error: {e}")
+
+def select_all_uninstall_programs():
+    if _mysql_conn is None:
+        raise RuntimeError("MySQL connection is not open.")
+    cursor = _mysql_conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM UNINSTALL_PROGRAMS")
+        results = cursor.fetchall()
+
+        json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Functions', 'UninstallPrograms.json')
+        policies_list = []
+        for prog in results:
+            mapped = {
+                "id": prog.get("uninstall_id"),
+                "name": prog.get("uninstall_name"),
+                "name_program": prog.get("uninstall_name_program"),
+                "Source": prog.get("uninstall_source")
+            }
+            policies_list.append(mapped)
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(policies_list, f, ensure_ascii=False, indent=4)
+
+        return results
+    except Exception as e:
+        print(f"Error: {e}")
+
+def select_all_windows_settings():
+    if _mysql_conn is None:
+        raise RuntimeError("MySQL connection is not open.")
+    cursor = _mysql_conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM WIN_SETTINGS")
+        results = cursor.fetchall()
+
+        json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Functions', 'WindowsSetting.json')
+        policies_list = []
+        for prog in results:
+            mapped = {
+                "id": prog.get("settings_id"),
+                "name": prog.get("settings_name"),
+                "command": prog.get("settings_command"),
+                "enable": bool(prog.get("settings_enable"))
+            }
+            policies_list.append(mapped)
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(policies_list, f, ensure_ascii=False, indent=4)
+
+        return results
+    except Exception as e:
+        print(f"Error: {e}")

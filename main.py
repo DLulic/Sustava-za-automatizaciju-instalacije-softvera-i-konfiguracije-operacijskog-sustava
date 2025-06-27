@@ -7,7 +7,7 @@ import datetime
 import json
 from Display.MainPage import MainPage
 from Display.mysqlPage import MysqlConfigFrame
-from Controller.mysql import open_mysql_connection, close_mysql_connection, select_all_users
+from Controller.mysql import open_mysql_connection, close_mysql_connection, select_all_users, select_all_programs, select_all_group_policy, select_all_python_dependencies, select_all_uninstall_programs, select_all_windows_settings
 
 # Redirect all output to a log file, creating it if it doesn't exist
 log_path = os.path.join(os.path.dirname(__file__), 'app.log')
@@ -129,6 +129,12 @@ def main():
     if os.path.exists(config_path):
         with open(config_path, 'r', encoding='utf-8') as f:
             config = json.load(f)
+            open_mysql_connection()
+            select_all_programs()
+            select_all_group_policy()
+            select_all_python_dependencies()
+            select_all_uninstall_programs()
+            select_all_windows_settings()
     else:
         config = {}
     mysql_fields = ["mysql_host", "mysql_user", "mysql_password", "mysql_database"]
@@ -138,10 +144,11 @@ def main():
             try:
                 open_mysql_connection()
                 print("MySQL connection opened.")
-                users = select_all_users()
-                print("All users from USER table:")
-                for user in users:
-                    print(user)
+                select_all_programs()
+                select_all_group_policy()
+                select_all_python_dependencies()
+                select_all_uninstall_programs()
+                select_all_windows_settings()
             except Exception as e:
                 import traceback
                 print(f"Could not connect to MySQL or fetch users: {e}")
