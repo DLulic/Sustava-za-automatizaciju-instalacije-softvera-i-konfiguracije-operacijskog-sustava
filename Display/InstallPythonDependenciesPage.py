@@ -3,12 +3,20 @@ import os
 import subprocess
 import threading
 import sys
+from Controller.mysql import insert_report
 
 def _install_all_python_deps_worker(page_instance, tasks_to_install, initial_load=False):
     """
     Worker function to install all python dependencies in a separate thread.
     """
     python_executable = sys.executable
+    # Load computer_name from data.json
+    data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Storage', 'data.json')
+    computer_name = ''
+    if os.path.exists(data_path):
+        with open(data_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            computer_name = data.get('Naziv računala', '')
 
     for index, task_name in enumerate(tasks_to_install):
         def schedule_ui_update(color):
@@ -29,10 +37,10 @@ def _install_all_python_deps_worker(page_instance, tasks_to_install, initial_loa
         except Exception as e:
             print(f"An error occurred installing {task_name}: {e}")
             task_successful = False
-            
         final_color = '#2E7D32' if task_successful else '#C62828'
         schedule_ui_update(final_color)
-    
+        status = 'success' if task_successful else 'failure'
+        insert_report(computer_name, 'python dodaci', task_name, status)
     if initial_load:
         page_instance.after(1200, lambda: page_instance.change_tab(5, initial_load=True))
 

@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import threading
+from Controller.mysql import insert_report
 
 def _run_windows_settings_worker(page_instance, tasks_to_run, initial_load=False):
     # Load config and data
@@ -39,11 +40,14 @@ def _run_windows_settings_worker(page_instance, tasks_to_run, initial_load=False
             if not command:
                 print(f"No command for task '{task['name']}'")
                 schedule_ui_update('#C62828')
+                # Log failure
+                insert_report(computer_name, 'windows_setting', task['name'], 'failure')
                 continue
             # Replace placeholders
             command = command.replace('<Your-Product-Key>', windows_key)
             command = command.replace('<NewComputerName>', computer_name)
             print(f"Running command for '{task['name']}': {command}")
+            status = 'success'
             try:
                 result = subprocess.run(
                     ["powershell.exe", "-Command", command],
@@ -57,8 +61,12 @@ def _run_windows_settings_worker(page_instance, tasks_to_run, initial_load=False
             except subprocess.CalledProcessError as e:
                 print(f"Failed to run command for {task['name']}.\n--- Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------")
                 schedule_ui_update('#C62828')
+                status = 'failure'
+                insert_report(computer_name, 'windows settings', task['name'], status)
                 continue
             schedule_ui_update('#2E7D32')
+            insert_report(computer_name, 'windows settings', task['name'], status)
+            print(computer_name, 'windows settings', task['name'], status)
     except Exception as e:
         print(f"Error running windows settings tasks: {e}")
     finally:

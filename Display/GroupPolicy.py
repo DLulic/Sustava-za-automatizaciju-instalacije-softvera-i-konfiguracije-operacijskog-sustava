@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import threading
+from Controller.mysql import insert_report
 
 def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False):
     json_path = os.path.join(
@@ -9,6 +10,13 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
         "Functions",
         "GroupPolicy.json"
     )
+    # Load computer_name from data.json
+    data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Storage', 'data.json')
+    computer_name = ''
+    if os.path.exists(data_path):
+        with open(data_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            computer_name = data.get('Naziv računala', '')
     try:
         with open(json_path, "r", encoding="utf-8") as f:
             tasks_data = json.load(f)
@@ -73,6 +81,8 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
                         task_successful = False
             final_color = '#2E7D32' if task_successful else '#C62828'
             schedule_ui_update(final_color)
+            status = 'success' if task_successful else 'failure'
+            insert_report(computer_name, 'group policy', task_name, status)
         # Run gpupdate /force at the end
         try:
             print("Running gpupdate /force ...")

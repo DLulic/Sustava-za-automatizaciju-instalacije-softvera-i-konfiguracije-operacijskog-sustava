@@ -178,3 +178,17 @@ def select_all_windows_settings():
         return results
     except Exception as e:
         print(f"Error: {e}")
+
+def insert_report(computer_name, task_type, task_name, status):
+    if _mysql_conn is None:
+        raise RuntimeError("MySQL connection is not open.")
+    cursor = _mysql_conn.cursor()
+    try:
+        cursor.execute(
+            "INSERT INTO REPORT (report_computer_name, report_task_type, report_task_name, report_status, report_timestamp) "
+            "VALUES (%s, %s, %s, %s, NOW())",
+            (computer_name, task_type, task_name, status)
+        )
+        _mysql_conn.commit()
+    except Exception as e:
+        print(f"Error inserting report: {e}")

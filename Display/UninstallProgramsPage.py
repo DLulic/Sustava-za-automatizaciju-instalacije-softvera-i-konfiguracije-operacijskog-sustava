@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import threading
+from Controller.mysql import insert_report
 
 def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_load=False):
     """
@@ -12,6 +13,13 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
         "Functions",
         "UninstallPrograms.json"
     )
+    # Load computer_name from data.json
+    data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Storage', 'data.json')
+    computer_name = ''
+    if os.path.exists(data_path):
+        with open(data_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            computer_name = data.get('Naziv računala', '')
     try:
         with open(json_path, "r", encoding="utf-8") as f:
             tasks_data = json.load(f)
@@ -69,6 +77,8 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
             
             final_color = '#2E7D32' if task_successful else '#C62828'
             schedule_ui_update(final_color)
+            status = 'success' if task_successful else 'failure'
+            insert_report(computer_name, 'brisanje programa', task_name, status)
 
     except Exception as e:
         print(f"An error occurred during program uninstallation: {e}")
