@@ -98,6 +98,7 @@ def select_all_group_policy():
                 "id": prog.get("policies_id"),
                 "name": prog.get("policies_name"),
                 "regPath": prog.get("policies_regPath"),
+                "regName": prog.get("policies_regName"),
                 "regValue": prog.get("policies_regVaule"),
                 "regValueRevert": prog.get("policies_regVauleRevert"),
                 "type": prog.get("policies_type"),
