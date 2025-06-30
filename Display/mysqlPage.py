@@ -1,4 +1,6 @@
 import tkinter as tk
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 import json
 import os
 from tkinter import messagebox
@@ -6,7 +8,7 @@ import time
 from Controller.mysql import open_mysql_connection
 
 
-class MysqlConfigFrame(tk.Frame):
+class MysqlConfigFrame(ttk.Frame):
     def __init__(self, parent, config_path, config, on_save=None):
         super().__init__(parent)
         self.config_path = config_path
@@ -21,14 +23,14 @@ class MysqlConfigFrame(tk.Frame):
             ("mysql_database", "Baza")
         ]
         for i, (key, label) in enumerate(fields):
-            tk.Label(self, text=label+":").grid(row=i, column=0, sticky="e", padx=10, pady=5)
-            ent = tk.Entry(self, width=25, show="*" if key=="mysql_password" else None)
+            ttk.Label(self, text=label+":").grid(row=i, column=0, sticky="e", padx=10, pady=5)
+            ent = ttk.Entry(self, width=25, show="*" if key=="mysql_password" else None)
             ent.grid(row=i, column=1, padx=10, pady=5)
             if config.get(key):
                 ent.insert(0, str(config[key]))
             self.entries[key] = ent
 
-        btn = tk.Button(self, text="Spremi", command=self.save_and_continue)
+        btn = ttk.Button(self, text="Spremi", command=self.save_and_continue, bootstyle=SUCCESS)
         btn.grid(row=len(fields), column=0, columnspan=2, pady=15)
 
     def save_and_continue(self):

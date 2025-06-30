@@ -1,5 +1,7 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 import ctypes
 import sys
 import os
@@ -47,23 +49,7 @@ def main():
         sys.exit(0)
 
     global root
-    root = tk.Tk()
-    dark_mode = True  # Set to True for dark mode, False for light mode
-    if dark_mode:
-        root.tk_setPalette(background='#2E2E2E', foreground='#FFFFFF')
-        root.option_add('*TButton*highlightBackground', '#2E2E2E')
-        root.option_add('*TButton*highlightColor', '#2E2E2E')
-        style = ttk.Style()
-        style.theme_use('default')
-        style.configure('.', background='#2E2E2E', foreground='#FFFFFF')
-        style.configure('TNotebook', background='#222222', foreground='#FFFFFF')
-        style.configure('TNotebook.Tab', background='#444444', foreground='#FFFFFF')
-        style.map('TNotebook.Tab', background=[('selected', '#2E2E2E')], foreground=[('selected', '#FFFFFF')])
-        style.configure('TLabel', background='#2E2E2E', foreground='#FFFFFF')
-        style.configure('TEntry', fieldbackground='#444444', foreground='#FFFFFF')
-        style.configure('TFrame', background='#2E2E2E')
-    else:
-        root.tk_setPalette(background='#FFFFFF', foreground='#000000')
+    root = ttk.Window(themename="darkly")
     root.title("Sustav za automatizaciju instalacije softvera")
     root.geometry("800x600")
 
@@ -72,24 +58,24 @@ def main():
         notebook.pack(fill="both", expand=True)
 
         # First tab: main screen
-        main_frame = tk.Frame(notebook)
+        main_frame = ttk.Frame(notebook)
         notebook.add(main_frame, text="Početna")
 
         # Second tab: automation workflow (add later)
-        automation_frame = tk.Frame(notebook)
+        automation_frame = ttk.Frame(notebook)
         automation_tab_added = [False]  # Use a list for mutability in closure
 
         # --- Main tab content ---
         naziv_racunala_var = tk.StringVar()
-        naziv_racunala_label = tk.Label(main_frame, text="Naziv računala:")
+        naziv_racunala_label = ttk.Label(main_frame, text="Naziv računala:")
         naziv_racunala_label.pack(pady=(10, 0))
-        naziv_racunala_entry = tk.Entry(main_frame, textvariable=naziv_racunala_var, width=30)
+        naziv_racunala_entry = ttk.Entry(main_frame, textvariable=naziv_racunala_var, width=30)
         naziv_racunala_entry.pack(pady=(0, 10))
         
         windows_key_var = tk.StringVar()
-        windows_key_label = tk.Label(main_frame, text="Windows ključ:")
+        windows_key_label = ttk.Label(main_frame, text="Windows ključ:")
         windows_key_label.pack(pady=(10, 0))
-        windows_key_entry = tk.Entry(main_frame, textvariable=windows_key_var, width=30)
+        windows_key_entry = ttk.Entry(main_frame, textvariable=windows_key_var, width=30)
         windows_key_entry.pack(pady=(0, 10))
         # Load existing key
         config_path = os.path.join(os.path.dirname(__file__), 'Storage', 'config.json')
@@ -98,7 +84,7 @@ def main():
                 config = json.load(f)
                 windows_key_var.set(config.get('windows_key', ''))
 
-        label = tk.Label(main_frame, text="Sustav za automatizaciju instalacije softvera", wraplength=350)
+        label = ttk.Label(main_frame, text="Sustav za automatizaciju instalacije softvera", wraplength=350)
         label.pack(pady=20)
 
         def on_automation_finished():
@@ -144,7 +130,7 @@ def main():
             except Exception as e:
                 print(f"Could not connect to MySQL or fetch users: {e}")
 
-        btn = tk.Button(main_frame, text="Pokreni", command=start_main_page)
+        btn = ttk.Button(main_frame, text="Pokreni", command=start_main_page, bootstyle=SUCCESS)
         btn.pack(pady=10)
 
     # MySQL config logic

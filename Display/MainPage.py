@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import ttk
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 import json
 import os
 from .WindowsSettingsPage import update_main_tasks
@@ -9,7 +10,7 @@ from .InstallDependencies import update_dependencies_tasks
 from .InstallPythonDependenciesPage import update_python_dependencies_tasks
 from .InstallProgramsPage import update_programs_tasks
 
-class MainPage(tk.Frame):
+class MainPage(ttk.Frame):
     def __init__(self, parent, on_automation_finished=None):
         super().__init__(parent)
         self.auto_install_triggered = set()
@@ -24,19 +25,17 @@ class MainPage(tk.Frame):
 
         # Vertical tabs on the left (non-interactive)
         tab_names = ["Postavljanje Windowsa", "Group Policy", "Brisanje programa", "Instalacija dodataka", "Instalacija python dodataka", "Instalacija programa"]
-        tabs_frame = tk.Frame(self, bg="#222")
+        tabs_frame = ttk.Frame(self, bootstyle="secondary")
         tabs_frame.grid(row=0, column=0, sticky="ns", padx=(10, 5), pady=10)
         self.tab_labels = []
         for i, name in enumerate(tab_names):
-            lbl = tk.Label(
+            lbl = ttk.Label(
                 tabs_frame,
                 text=name,
                 anchor="w",
-                width=16,
-                padx=10,
-                pady=10,
-                bg="#444" if i == 0 else "#222",  # Highlight first tab as active
-                fg="#fff"
+                width=20,
+                padding=(10, 10),
+                bootstyle="inverse-secondary" if i == 0 else "secondary"
             )
             lbl.pack(fill="x", pady=2)
             lbl.bind("<Button-1>", lambda event, index=i: self.on_tab_click(index))
@@ -51,10 +50,10 @@ class MainPage(tk.Frame):
         tasks_label = ttk.Label(tasks_frame, text="Popis zadataka")
         tasks_label.grid(row=0, column=0, sticky="w", pady=(0, 5))
 
-        self.tasks_list = tk.Listbox(tasks_frame, height=10)
+        self.tasks_list = tk.Listbox(tasks_frame, height=10, background="#2E2E2E", foreground="#FFFFFF", selectbackground="#4A4A4A", selectforeground="#FFFFFF")
         self.tasks_list.grid(row=1, column=0, sticky="nsew")
 
-        scrollbar = tk.Scrollbar(tasks_frame, orient=tk.VERTICAL, command=self.tasks_list.yview)
+        scrollbar = ttk.Scrollbar(tasks_frame, orient=tk.VERTICAL, command=self.tasks_list.yview)
         scrollbar.grid(row=1, column=1, sticky="ns")
         self.tasks_list.config(yscrollcommand=scrollbar.set)
 
@@ -123,4 +122,4 @@ class MainPage(tk.Frame):
     def set_active_tab(self, tab_index):
         """Sets the active tab by highlighting it."""
         for i, lbl in enumerate(self.tab_labels):
-            lbl.config(bg="#444" if i == tab_index else "#222")
+            lbl.config(bootstyle="inverse-secondary" if i == tab_index else "secondary")
