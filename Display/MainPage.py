@@ -81,7 +81,13 @@ class MainPage(ttk.Frame):
         # Check if the task is still visible at the given index
         if self.tasks_list.size() > task_index and self.tasks_list.get(task_index) == task_name:
             self.task_colors[self.active_tab_index][task_name] = color
-            self.tasks_list.itemconfig(task_index, {'bg': color})
+            
+            options = {'bg': color}
+            if color == 'yellow':
+                options['fg'] = 'black'
+            else:
+                options['fg'] = '#FFFFFF'  # Default text color
+            self.tasks_list.itemconfig(task_index, options)
 
     def change_tab(self, tab_index, initial_load=False):
         """Change the active tab and update the task list."""
@@ -117,7 +123,13 @@ class MainPage(ttk.Frame):
         for i, task in enumerate(tasks):
             self.tasks_list.insert(tk.END, task)
             if task in task_colors_for_tab:
-                self.tasks_list.itemconfig(i, {'bg': task_colors_for_tab[task]})
+                bg_color = task_colors_for_tab[task]
+                options = {'bg': bg_color}
+                if bg_color == 'yellow':
+                    options['fg'] = 'black'
+                else:
+                    options['fg'] = '#FFFFFF'
+                self.tasks_list.itemconfig(i, options)
 
     def set_active_tab(self, tab_index):
         """Sets the active tab by highlighting it."""
