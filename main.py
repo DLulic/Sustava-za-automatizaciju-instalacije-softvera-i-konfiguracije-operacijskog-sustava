@@ -85,6 +85,18 @@ def main():
         naziv_racunala_label.pack(pady=(10, 0))
         naziv_racunala_entry = tk.Entry(main_frame, textvariable=naziv_racunala_var, width=30)
         naziv_racunala_entry.pack(pady=(0, 10))
+        
+        windows_key_var = tk.StringVar()
+        windows_key_label = tk.Label(main_frame, text="Windows ključ:")
+        windows_key_label.pack(pady=(10, 0))
+        windows_key_entry = tk.Entry(main_frame, textvariable=windows_key_var, width=30)
+        windows_key_entry.pack(pady=(0, 10))
+        # Load existing key
+        config_path = os.path.join(os.path.dirname(__file__), 'Storage', 'config.json')
+        if os.path.exists(config_path):
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                windows_key_var.set(config.get('windows_key', ''))
 
         label = tk.Label(main_frame, text="Sustav za automatizaciju instalacije softvera", wraplength=350)
         label.pack(pady=20)
@@ -92,6 +104,7 @@ def main():
         def on_automation_finished():
             btn.config(state='normal')
             naziv_racunala_entry.config(state='normal')
+            windows_key_entry.config(state='normal')
 
         def start_main_page():
             # Save to Storage/data.json
@@ -100,6 +113,15 @@ def main():
             data_path = os.path.join(storage_dir, 'data.json')
             with open(data_path, 'w', encoding='utf-8') as f:
                 json.dump({"Naziv računala": naziv_racunala_var.get()}, f, ensure_ascii=False, indent=2)
+
+            # Save windows key to Storage/config.json
+            with open(config_path, 'r+', encoding='utf-8') as f:
+                config_data = json.load(f)
+                config_data['windows_key'] = windows_key_var.get()
+                f.seek(0)
+                json.dump(config_data, f, indent=2)
+                f.truncate()
+
             # Add automation tab if not already present
             if not automation_tab_added[0]:
                 notebook.add(automation_frame, text="Automatizacija")
@@ -111,6 +133,7 @@ def main():
                 widget.destroy()
             btn.config(state='disabled')
             naziv_racunala_entry.config(state='disabled')
+            windows_key_entry.config(state='disabled')
             page = MainPage(automation_frame, on_automation_finished=on_automation_finished)
             page.pack(fill="both", expand=True)
 
