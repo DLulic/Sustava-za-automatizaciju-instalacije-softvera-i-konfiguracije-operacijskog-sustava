@@ -60,6 +60,7 @@ def _install_all_dependencies_worker(page_instance, tasks_to_install, initial_lo
             final_color = '#2E7D32' if task_successful else '#C62828'
             schedule_ui_update(final_color)
             status = 'success' if task_successful else 'failure'
+            print(f"Task '{task_name}' completed with status: {status}")
             insert_report(computer_name, 'instalacija dodataka', task_name, status)
 
     except Exception as e:

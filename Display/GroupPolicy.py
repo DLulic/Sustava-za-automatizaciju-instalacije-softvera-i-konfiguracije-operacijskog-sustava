@@ -82,6 +82,7 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
             final_color = '#2E7D32' if task_successful else '#C62828'
             schedule_ui_update(final_color)
             status = 'success' if task_successful else 'failure'
+            print(f"Task '{task_name}' completed with status: {status}")
             insert_report(computer_name, 'group policy', task_name, status)
         # Run gpupdate /force at the end
         try:
