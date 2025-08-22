@@ -1,8 +1,7 @@
 import tkinter as tk
 import ttkbootstrap as ttk
+from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.constants import *
-import json
-import os
 from typing import List, Dict, Any, Optional, Callable
 from .WindowsSettingsPage import update_main_tasks
 from .GroupPolicy import update_group_policy_tasks
@@ -75,6 +74,9 @@ class MainPage(ttk.Frame):
         self.tour_in_progress = False
         if self.on_automation_finished:
             self.on_automation_finished()
+        
+        # Show message box when automation ends
+        Messagebox.show_info("Automatska instalacija završena", "Automatska instalacija softvera je završena.\nSada možete slobodno koristiti sve tabove.", parent=self)
 
     def set_task_status(self, task_name, task_index, color):
         """Updates the color of a task in the list and stores it."""
