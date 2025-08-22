@@ -2,24 +2,23 @@ import json
 import os
 import subprocess
 import threading
+from typing import Dict, Any
 from Controller.mysql import insert_report
+from Controller.config import config_manager
+from utils.logger import logger
+from pathlib import Path
 
 def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_load=False):
     """
     Worker function to uninstall all designated programs in a separate thread.
     """
-    json_path = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "Functions",
-        "UninstallPrograms.json"
-    )
-    # Load computer_name from data.json
-    data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Storage', 'data.json')
-    computer_name = ''
-    if os.path.exists(data_path):
-        with open(data_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            computer_name = data.get('Naziv računala', '')
+    json_path = config_manager.get_functions_path() / "UninstallPrograms.json"
+    # Load computer_name using config manager
+    try:
+        computer_name = config_manager.get_computer_name()
+    except Exception as e:
+        logger.error(f"Error loading computer name: {e}", file=Path(__file__).name)
+        computer_name = ''
     try:
         with open(json_path, "r", encoding="utf-8") as f:
             tasks_data = json.load(f)
@@ -34,34 +33,39 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
             
             task_successful = True
             if not target_task or not target_task.get("name_program"):
-                print(f"No valid program name found for '{task_name}'.")
+                logger.error(f"No valid program name found for '{task_name}'.", file=Path(__file__).name)
                 task_successful = False
             else:
                 program_name = target_task.get("name_program")
                 source = target_task.get("Source", "AppxPackage")
-                print(f"Uninstalling {program_name} using {source}...")
+                logger.info(f"Uninstalling {program_name} using {source}...", file=Path(__file__).name)
                 if source == "Winget":
                     try:
                         result = subprocess.run(
                             ["winget", "uninstall", "--id", program_name],
-                            capture_output=True, text=True, shell=True
+                            capture_output=True, text=True, shell=True,
+                            timeout=300  # 5 minute timeout
                         )
                         # Winget success codes: 0 (success), 0x8A15002B (already uninstalled), etc.
                         success_codes = {0, -1978335148, -1978335189, -1978334963, -1978334962, -1978335189, -1978335211, -1978335209, -1978335179, -1978335212, 0x8A150054, 0x8A15010D, 0x8A15010E, 0x8a15002b, 0x8A150015, 0x8A150017, 0x8A150035, 0x8A150014}
                         if result.returncode not in success_codes:
-                            raise subprocess.CalledProcessError(
+                            raise subprocess.Error(
                                 returncode=result.returncode, cmd=result.args, output=result.stdout, stderr=result.stderr
                             )
-                        print(f"Successfully uninstalled or already absent: {program_name}.")
+                        logger.info(f"Successfully uninstalled or already absent: {program_name}.", file=Path(__file__).name)
+                    except subprocess.TimeoutExpired:
+                        logger.error(f"Uninstallation of {program_name} timed out after 5 minutes", file=Path(__file__).name)
+                        task_successful = False
                     except subprocess.CalledProcessError as e:
-                        print(f"Failed to uninstall {program_name} (winget).\n--- Winget Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------")
+                        logger.error(f"Failed to uninstall {program_name} (winget).\n--- Winget Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------", file=Path(__file__).name)
                         task_successful = False
                 else:
                     command = f"Get-AppxPackage *{program_name}* | Remove-AppxPackage"
                     try:
                         result = subprocess.run(
                             ["powershell.exe", "-Command", command],
-                            capture_output=True, text=True, shell=True
+                            capture_output=True, text=True, shell=True,
+                            timeout=300  # 5 minute timeout
                         )
                         if result.returncode != 0:
                             # If the command fails, it might be because the app is already uninstalled, which we treat as success.
@@ -70,30 +74,29 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
                                  raise subprocess.CalledProcessError(
                                     returncode=result.returncode, cmd=command, output=result.stdout, stderr=result.stderr
                                 )
-                        print(f"Successfully uninstalled or already absent: {program_name}.")
+                        logger.info(f"Successfully uninstalled or already absent: {program_name}.", file=Path(__file__).name)
+                    except subprocess.TimeoutExpired:
+                        logger.error(f"Uninstallation of {program_name} timed out after 5 minutes", file=Path(__file__).name)
+                        task_successful = False
                     except subprocess.CalledProcessError as e:
-                        print(f"Failed to uninstall {program_name} (AppxPackage).\n--- PowerShell Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------")
+                        logger.error(f"Failed to uninstall {program_name} (AppxPackage).\n--- PowerShell Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------", file=Path(__file__).name)
                         task_successful = False
             
             final_color = '#2E7D32' if task_successful else '#C62828'
             schedule_ui_update(final_color)
             status = 'success' if task_successful else 'failure'
-            print(f"Task '{task_name}' completed with status: {status}")
+            logger.info(f"Task '{task_name}' completed with status: {status}", file=Path(__file__).name)
             insert_report(computer_name, 'brisanje programa', task_name, status)
 
     except Exception as e:
-        print(f"An error occurred during program uninstallation: {e}")
+        logger.error(f"An error occurred during program uninstallation: {e}", file=Path(__file__).name)
     finally:
         if initial_load:
             page_instance.after(1200, lambda: page_instance.change_tab(3, initial_load=True))
 
 def update_uninstall_programs_tasks(page_instance, initial_load=False, auto_install=False):
     """Load tasks from UninstallPrograms.json and optionally auto-uninstall them."""
-    json_path = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "Functions",
-        "UninstallPrograms.json"
-    )
+    json_path = config_manager.get_functions_path() / "UninstallPrograms.json"
     try:
         with open(json_path, "r", encoding="utf-8") as f:
             tasks_data = json.load(f)
@@ -107,5 +110,5 @@ def update_uninstall_programs_tasks(page_instance, initial_load=False, auto_inst
                     daemon=True
                 ).start()
     except Exception as e:
-        print(f"Error loading uninstall tasks: {e}")
+        logger.error(f"Error loading uninstall tasks: {e}", file=Path(__file__).name)
         page_instance.update_tasks([f"Greška pri učitavanju: {e}"])

@@ -3,12 +3,15 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import json
 import os
+from typing import List, Dict, Any, Optional, Callable
 from .WindowsSettingsPage import update_main_tasks
 from .GroupPolicy import update_group_policy_tasks
 from .UninstallProgramsPage import update_uninstall_programs_tasks
 from .InstallDependencies import update_dependencies_tasks
 from .InstallPythonDependenciesPage import update_python_dependencies_tasks
 from .InstallProgramsPage import update_programs_tasks
+from utils.logger import logger
+from pathlib import Path
 
 class MainPage(ttk.Frame):
     def __init__(self, parent, on_automation_finished=None):
@@ -64,11 +67,11 @@ class MainPage(ttk.Frame):
         if not self.tour_in_progress:
             self.change_tab(tab_index, initial_load=False)
         else:
-            print("Automated setup in progress. Please wait.")
+            logger.info("Automated setup in progress. Please wait.", file=Path(__file__).name)
 
     def end_guided_tour(self):
         """Marks the end of the guided tour, enabling manual navigation."""
-        print("Automated setup complete. You can now navigate freely.")
+        logger.info("Automated setup complete. You can now navigate freely.", file=Path(__file__).name)
         self.tour_in_progress = False
         if self.on_automation_finished:
             self.on_automation_finished()

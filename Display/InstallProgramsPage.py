@@ -2,24 +2,23 @@ import json
 import os
 import subprocess
 import threading
+from typing import Dict, Any
 from Controller.mysql import insert_report
+from Controller.config import config_manager
+from utils.logger import logger
+from pathlib import Path
 
 def _install_all_programs_worker(page_instance, tasks_to_install, initial_load=False, tour_completion_callback=None):
     """
     Worker function to install all programs in a separate thread.
     """
-    json_path = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "Functions",
-        "DependenciesWinget.json"
-    )
-    # Load computer_name from data.json
-    data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Storage', 'data.json')
-    computer_name = ''
-    if os.path.exists(data_path):
-        with open(data_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            computer_name = data.get('Naziv računala', '')
+    json_path = config_manager.get_functions_path() / "DependenciesWinget.json"
+    # Load computer_name using config manager
+    try:
+        computer_name = config_manager.get_computer_name()
+    except Exception as e:
+        logger.error(f"Error loading computer name: {e}", file=Path(__file__).name)
+        computer_name = ''
     try:
         with open(json_path, "r", encoding="utf-8") as f:
             tasks_data = json.load(f)
@@ -34,46 +33,47 @@ def _install_all_programs_worker(page_instance, tasks_to_install, initial_load=F
             
             task_successful = True
             if not target_task or not target_task.get("winget"):
-                print(f"No valid winget task found for '{task_name}'.")
+                logger.error(f"No valid winget task found for '{task_name}'.", file=Path(__file__).name)
                 task_successful = False
             else:
                 winget_ids = [id.strip() for id in target_task.get("winget").split(',')]
                 for winget_id in winget_ids:
-                    print(f"Installing {winget_id}...")
+                    logger.info(f"Installing {winget_id}...", file=Path(__file__).name)
                     try:
                         result = subprocess.run(
                             ["winget", "install", "--id", winget_id, "--accept-source-agreements", "--accept-package-agreements"],
-                            capture_output=True, text=True, shell=True
+                            capture_output=True, text=True, shell=True,
+                            timeout=600  # 10 minute timeout for installations
                         )
                         success_codes = {0, -1978335148, -1978335189, -1978334963, -1978334962, -1978335189, 0x8A150054, 0x8A15010D, 0x8A15010E, 0x8a15002b}
                         if result.returncode not in success_codes:
                             raise subprocess.CalledProcessError(
                                 returncode=result.returncode, cmd=result.args, output=result.stdout, stderr=result.stderr
                             )
-                        print(f"Successfully installed or already present: {winget_id}.")
+                        logger.info(f"Successfully installed or already present: {winget_id}.", file=Path(__file__).name)
+                    except subprocess.TimeoutExpired:
+                        logger.error(f"Installation of {winget_id} timed out after 10 minutes", file=Path(__file__).name)
+                        task_successful = False
+                        break
                     except subprocess.CalledProcessError as e:
-                        print(f"Failed to install {winget_id}.\n--- Winget Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------")
+                        logger.error(f"Failed to install {winget_id}.\n--- Winget Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------", file=Path(__file__).name)
                         task_successful = False
                         break
             final_color = '#2E7D32' if task_successful else '#C62828'
             schedule_ui_update(final_color)
             status = 'success' if task_successful else 'failure'
-            print(f"Task '{task_name}' completed with status: {status}")
+            logger.info(f"Task '{task_name}' completed with status: {status}", file=Path(__file__).name)
             insert_report(computer_name, 'instalacija programa', task_name, status)
 
     except Exception as e:
-        print(f"An error occurred during program installation: {e}")
+        logger.error(f"An error occurred during program installation: {e}", file=Path(__file__).name)
     finally:
         if tour_completion_callback:
             page_instance.after(0, tour_completion_callback)
 
 def update_programs_tasks(page_instance, initial_load=False, auto_install=False, tour_completion_callback=None):
     """Load tasks from DependenciesWinget.json and optionally auto-install them."""
-    json_path = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "Functions",
-        "DependenciesWinget.json"
-    )
+    json_path = config_manager.get_functions_path() / "DependenciesWinget.json"
     try:
         with open(json_path, "r", encoding="utf-8") as f:
             tasks_data = json.load(f)
@@ -91,5 +91,5 @@ def update_programs_tasks(page_instance, initial_load=False, auto_install=False,
                     daemon=True
                 ).start()
     except Exception as e:
-        print(f"Error loading program tasks: {e}")
+        logger.error(f"Error loading program tasks: {e}", file=Path(__file__).name)
         page_instance.update_tasks([f"Greška pri učitavanju: {e}"])

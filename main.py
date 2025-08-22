@@ -5,22 +5,16 @@ from ttkbootstrap.constants import *
 import ctypes
 import sys
 import os
-import datetime
-import json
+from typing import Optional
 from Display.MainPage import MainPage
 from Display.mysqlPage import MysqlConfigFrame
 from Controller.mysql import open_mysql_connection, close_mysql_connection, select_all_users, select_all_programs, select_all_group_policy, select_all_python_dependencies, select_all_uninstall_programs, select_all_windows_settings
+from Controller.config import config_manager
+from utils.logger import logger
+from pathlib import Path
 
-# Redirect all output to a log file, creating it if it doesn't exist
-log_path = os.path.join(os.path.dirname(__file__), 'app.log')
-if not os.path.exists(log_path):
-    with open(log_path, 'w', encoding='utf-8') as log_file:
-        log_file.write(f"\n--- App started at {datetime.datetime.now()} ---\n")
-else:
-    with open(log_path, 'a', encoding='utf-8') as log_file:
-        log_file.write(f"\n--- App started at {datetime.datetime.now()} ---\n")
-sys.stdout = open(log_path, 'a', encoding='utf-8')
-sys.stderr = open(log_path, 'a', encoding='utf-8')
+# Initialize logging
+logger.log_startup()
 
 def is_admin():
     try:
@@ -78,11 +72,10 @@ def main():
         windows_key_entry = ttk.Entry(main_frame, textvariable=windows_key_var, width=30)
         windows_key_entry.pack(pady=(0, 10))
         # Load existing key
-        config_path = os.path.join(os.path.dirname(__file__), 'Storage', 'config.json')
-        if os.path.exists(config_path):
-            with open(config_path, 'r', encoding='utf-8') as f:
-                config = json.load(f)
-                windows_key_var.set(config.get('windows_key', ''))
+        try:
+            windows_key_var.set(config_manager.get_windows_key())
+        except Exception as e:
+            logger.warning(f"Could not load Windows key: {e}", file=Path(__file__).name)
 
         label = ttk.Label(main_frame, text="Sustav za automatizaciju instalacije softvera", wraplength=350)
         label.pack(pady=20)
@@ -93,20 +86,14 @@ def main():
             windows_key_entry.config(state='normal')
 
         def start_main_page():
-            # Save to Storage/data.json
-            storage_dir = os.path.join(os.path.dirname(__file__), 'Storage')
-            os.makedirs(storage_dir, exist_ok=True)
-            data_path = os.path.join(storage_dir, 'data.json')
-            with open(data_path, 'w', encoding='utf-8') as f:
-                json.dump({"Naziv računala": naziv_racunala_var.get()}, f, ensure_ascii=False, indent=2)
-
-            # Save windows key to Storage/config.json
-            with open(config_path, 'r+', encoding='utf-8') as f:
-                config_data = json.load(f)
-                config_data['windows_key'] = windows_key_var.get()
-                f.seek(0)
-                json.dump(config_data, f, indent=2)
-                f.truncate()
+            try:
+                # Save configuration using config manager
+                config_manager.update_data({"Naziv računala": naziv_racunala_var.get()})
+                config_manager.update_config({"windows_key": windows_key_var.get()})
+            except Exception as e:
+                logger.error(f"Failed to save configuration: {e}", file=Path(__file__).name)
+                messagebox.showerror("Error", f"Failed to save configuration: {e}")
+                return
 
             # Add automation tab if not already present
             if not automation_tab_added[0]:
@@ -128,42 +115,48 @@ def main():
                 open_mysql_connection()
                 print("MySQL connection opened.")
             except Exception as e:
-                print(f"Could not connect to MySQL or fetch users: {e}")
+                logger.error(f"Could not connect to MySQL or fetch users: {e}", file=Path(__file__).name)
 
         btn = ttk.Button(main_frame, text="Pokreni", command=start_main_page, bootstyle=SUCCESS)
         btn.pack(pady=10)
 
     # MySQL config logic
-    config_path = os.path.join(os.path.dirname(__file__), 'Storage', 'config.json')
-    if os.path.exists(config_path):
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-            open_mysql_connection()
-            select_all_programs()
-            select_all_group_policy()
-            select_all_python_dependencies()
-            select_all_uninstall_programs()
-            select_all_windows_settings()
-    else:
+    try:
+        config = config_manager.get_config()
+        # Try to initialize MySQL if config is complete
+        mysql_fields = ["mysql_host", "mysql_port", "mysql_user", "mysql_password", "mysql_database"]
+        if all(config.get(f) for f in mysql_fields):
+            try:
+                open_mysql_connection()
+                select_all_programs()
+                select_all_group_policy()
+                select_all_python_dependencies()
+                select_all_uninstall_programs()
+                select_all_windows_settings()
+                logger.info("MySQL initialization completed successfully", file=Path(__file__).name)
+            except Exception as e:
+                logger.error(f"MySQL initialization failed: {e}", file=Path(__file__).name)
+    except Exception as e:
         config = {}
+        logger.error(f"Error loading config: {e}", file=Path(__file__).name)
     mysql_fields = ["mysql_host", "mysql_user", "mysql_password", "mysql_database"]
     if any(not config.get(f) for f in mysql_fields):
         def after_mysql():
             mysql_frame.destroy()
             try:
                 open_mysql_connection()
-                print("MySQL connection opened.")
+                # Clear MySQL config cache and reinitialize
+                config_manager.clear_cache()
                 select_all_programs()
                 select_all_group_policy()
                 select_all_python_dependencies()
                 select_all_uninstall_programs()
                 select_all_windows_settings()
+                logger.info("MySQL connection opened.", file=Path(__file__).name)
             except Exception as e:
-                import traceback
-                print(f"Could not connect to MySQL or fetch users: {e}")
-                traceback.print_exc()
+                logger.error(f"Could not connect to MySQL or fetch users: {e}", file=Path(__file__).name)
             show_main_app()
-        mysql_frame = MysqlConfigFrame(root, config_path, config, on_save=after_mysql)
+        mysql_frame = MysqlConfigFrame(root, str(config_manager.config_file), config, on_save=after_mysql)
         mysql_frame.pack(fill="both", expand=True)
     else:
         show_main_app()
