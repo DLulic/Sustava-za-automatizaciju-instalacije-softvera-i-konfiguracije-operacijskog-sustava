@@ -1,8 +1,7 @@
-import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import json
-from tkinter import messagebox
+from ttkbootstrap.dialogs import Messagebox
 import time
 from typing import Dict, Any, Optional, Callable
 from pathlib import Path
@@ -56,7 +55,7 @@ class MysqlConfigFrame(ttk.Frame):
                 logger.info(f"Configuration saved to {self.config_path}", file=Path(__file__).name)
             except Exception as e:
                 logger.error(f"Failed to save configuration: {e}", file=Path(__file__).name)
-                messagebox.showerror("Save Error", f"Failed to save configuration:\n{e}")
+                Messagebox.show_error("Save Error", f"Failed to save configuration:\n{e}")
                 return
 
             # Test MySQL connection
@@ -74,10 +73,10 @@ class MysqlConfigFrame(ttk.Frame):
             except Exception as e:
                 error_msg = f"Could not connect to MySQL:\n{e}"
                 logger.error(f"MySQL connection failed: {e}", file=Path(__file__).name)
-                messagebox.showerror("MySQL Connection Error", error_msg)
+                Messagebox.show_error("MySQL Connection Error", error_msg)
                 return  # Do not proceed, let user correct info
                 
         except Exception as e:
             error_msg = f"Unexpected error during save: {e}"
             logger.error(error_msg, file=Path(__file__).name)
-            messagebox.showerror("Error", error_msg)
+            Messagebox.show_error("Error", error_msg)

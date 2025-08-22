@@ -2,7 +2,6 @@ import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.constants import *
-from typing import List, Dict, Any, Optional, Callable
 from .WindowsSettingsPage import update_main_tasks
 from .GroupPolicy import update_group_policy_tasks
 from .UninstallProgramsPage import update_uninstall_programs_tasks

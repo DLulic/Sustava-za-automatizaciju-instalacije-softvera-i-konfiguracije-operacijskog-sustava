@@ -1,11 +1,10 @@
 import tkinter as tk
-from tkinter import messagebox
+from ttkbootstrap.dialogs import Messagebox
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import ctypes
 import sys
 import os
-from typing import Optional
 from Display.MainPage import MainPage
 from Display.mysqlPage import MysqlConfigFrame
 from Controller.mysql import open_mysql_connection, close_mysql_connection, select_all_users, select_all_programs, select_all_group_policy, select_all_python_dependencies, select_all_uninstall_programs, select_all_windows_settings
@@ -36,7 +35,7 @@ def main():
             )
         except Exception as e:
             tk.Tk().withdraw()
-            messagebox.showerror(
+            Messagebox.show_error(
                 "Administrator Privileges Required",
                 f"Failed to elevate privileges: {e}"
             )
@@ -92,7 +91,7 @@ def main():
                 config_manager.update_config({"windows_key": windows_key_var.get()})
             except Exception as e:
                 logger.error(f"Failed to save configuration: {e}", file=Path(__file__).name)
-                messagebox.showerror("Error", f"Failed to save configuration: {e}")
+                Messagebox.show_error("Error", f"Failed to save configuration: {e}")
                 return
 
             # Add automation tab if not already present

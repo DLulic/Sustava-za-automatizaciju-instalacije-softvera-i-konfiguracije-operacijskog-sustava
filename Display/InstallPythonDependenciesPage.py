@@ -1,9 +1,7 @@
 import json
-import os
 import subprocess
 import threading
 import sys
-from typing import Dict, Any
 from Controller.mysql import insert_report
 from Controller.config import config_manager
 from utils.logger import logger
