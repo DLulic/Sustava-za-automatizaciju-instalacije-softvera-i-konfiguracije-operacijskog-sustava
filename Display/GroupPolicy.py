@@ -89,7 +89,7 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
             insert_report(computer_name, 'group policy', task_name, status)
         # Run gpupdate /force at the end
         try:
-            logger.info("Running gpupdate /force ...")
+            logger.info("Running gpupdate /force ...", file=Path(__file__).name)
             result_gpupdate = subprocess.run(
                 ["gpupdate", "/force"],
                 capture_output=True, text=True, shell=True,
