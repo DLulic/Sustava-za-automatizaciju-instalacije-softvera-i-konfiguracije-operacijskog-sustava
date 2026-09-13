@@ -59,7 +59,7 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
                         logger.error(f"Failed to uninstall {program_name} (winget).\n--- Winget Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------", file=Path(__file__).name)
                         task_successful = False
                 else:
-                    command = f"Get-AppxPackage *{program_name}* | Remove-AppxPackage -AllUsers"
+                    command = f"Get-AppxPackage *{program_name}* | Remove-AppxPackage"
                     try:
                         result = subprocess.run(
                             ["powershell.exe", "-Command", command],

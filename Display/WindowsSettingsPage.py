@@ -4,6 +4,7 @@ import threading
 from Controller.mysql import insert_report
 from Controller.config import config_manager
 from utils.logger import logger
+from utils.subprocess_helper import run_command
 from pathlib import Path
 
 def _run_windows_settings_worker(page_instance, tasks_to_run, initial_load=False):
@@ -36,14 +37,22 @@ def _run_windows_settings_worker(page_instance, tasks_to_run, initial_load=False
             # Replace placeholders
             command = command.replace('<Your-Product-Key>', windows_key)
             command = command.replace('<NewComputerName>', computer_name)
-            logger.info(f"Running command for '{task['name']}': {command}", file=Path(__file__).name)
+            require_admin = True
+            logger.info(f"Running command for '{task['name']}': {command} (admin: {require_admin})", file=Path(__file__).name)
             status = 'success'
             try:
-                result = subprocess.run(
+                result = run_command(
                     ["powershell.exe", "-Command", command],
                     capture_output=True, text=True, shell=True,
-                    timeout=300  # 5 minute timeout
+                    timeout=300,
+                    require_admin=require_admin
                 )
+                if result is None:
+                    logger.warning(f"Command '{task['name']}' requires elevation but returned None", file=Path(__file__).name)
+                    status = 'failure'
+                    schedule_ui_update('#C62828')
+                    insert_report(computer_name, 'windows settings', task['name'], status)
+                    continue
                 if result.returncode != 0:
                     raise subprocess.CalledProcessError(
                         returncode=result.returncode, cmd=command, output=result.stdout, stderr=result.stderr

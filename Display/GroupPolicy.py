@@ -4,6 +4,7 @@ import threading
 from Controller.mysql import insert_report
 from Controller.config import config_manager
 from utils.logger import logger
+from utils.subprocess_helper import run_command
 from pathlib import Path
 
 def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False):
@@ -39,21 +40,26 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
                 else:
                     # Check if the key exists
                     check_key_cmd = f"Test-Path -Path \"{reg_path}\""
-                    result_check = subprocess.run(
+                    result_check = run_command(
                         ["powershell.exe", "-Command", check_key_cmd],
-                        capture_output=True, text=True, shell=True
+                        capture_output=True, text=True, shell=True,
+                        require_admin=True
                     )
-                    if "True" not in result_check.stdout:
+                    if result_check is None or "True" not in result_check.stdout:
                         # Only create if it does not exist
                         create_key_cmd = f"New-Item -Path \"{reg_path}\" -Force"
                         try:
-                            result_create = subprocess.run(
+                            result_create = run_command(
                                 ["powershell.exe", "-Command", create_key_cmd],
-                                capture_output=True, text=True, shell=True
+                                capture_output=True, text=True, shell=True,
+                                require_admin=True
                             )
-                            if result_create.returncode != 0:
+                            if result_create is None or result_create.returncode != 0:
                                 raise subprocess.CalledProcessError(
-                                    returncode=result_create.returncode, cmd=create_key_cmd, output=result_create.stdout, stderr=result_create.stderr
+                                    returncode=result_create.returncode if result_create else -1,
+                                    cmd=create_key_cmd,
+                                    output=result_create.stdout if result_create else "",
+                                    stderr=result_create.stderr if result_create else "Elevation required but returned None"
                                 )
                         except subprocess.CalledProcessError as e:
                             logger.error(f"Failed to create registry key {reg_path}.\n--- PowerShell Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------", file=Path(__file__).name)
@@ -64,16 +70,21 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
                     # Wrap reg_path in double quotes for Set-ItemProperty
                     command = f"Set-ItemProperty -Path \"{reg_path}\" -Name '{reg_name}' -Value {value_str} {type_flag} -Force"
                     try:
-                        result = subprocess.run(
+                        result = run_command(
                             ["powershell.exe", "-Command", command],
                             capture_output=True, text=True, shell=True,
-                            timeout=300  # 5 minute timeout
+                            timeout=300,
+                            require_admin=True
                         )
-                        if result.returncode != 0:
+                        if result is None:
+                            logger.error(f"Registry command '{reg_name}' requires elevation but returned None", file=Path(__file__).name)
+                            task_successful = False
+                        elif result.returncode != 0:
                             raise subprocess.CalledProcessError(
                                 returncode=result.returncode, cmd=command, output=result.stdout, stderr=result.stderr
                             )
-                        logger.info(f"Successfully set {reg_name} in {reg_path} to {reg_value}.", file=Path(__file__).name)
+                        else:
+                            logger.info(f"Successfully set {reg_name} in {reg_path} to {reg_value}.", file=Path(__file__).name)
                     except subprocess.TimeoutExpired:
                         logger.error(f"Task '{task_name}' timed out after 5 minutes", file=Path(__file__).name)
                         task_successful = False
@@ -88,12 +99,16 @@ def _apply_group_policy_worker(page_instance, tasks_to_apply, initial_load=False
         # Run gpupdate /force at the end
         try:
             logger.info("Running gpupdate /force ...", file=Path(__file__).name)
-            result_gpupdate = subprocess.run(
+            result_gpupdate = run_command(
                 ["gpupdate", "/force"],
                 capture_output=True, text=True, shell=True,
-                timeout=300  # 5 minute timeout
+                timeout=300,
+                require_admin=True
             )
-            logger.info(f"gpupdate /force output:\nSTDOUT: {result_gpupdate.stdout}\nSTDERR: {result_gpupdate.stderr}", file=Path(__file__).name)
+            if result_gpupdate is not None:
+                logger.info(f"gpupdate /force output:\nSTDOUT: {result_gpupdate.stdout}\nSTDERR: {result_gpupdate.stderr}", file=Path(__file__).name)
+            else:
+                logger.warning("gpupdate /force requires elevation but returned None")
         except subprocess.TimeoutExpired:
             logger.error("gpupdate /force timed out after 5 minutes", file=Path(__file__).name)
         except Exception as e:

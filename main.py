@@ -2,9 +2,6 @@ import tkinter as tk
 from ttkbootstrap.dialogs import Messagebox
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-import ctypes
-import sys
-import os
 from Display.MainPage import MainPage
 from Display.mysqlPage import MysqlConfigFrame
 from Controller.mysql import open_mysql_connection, close_mysql_connection, select_all_users, select_all_programs, select_all_group_policy, select_all_python_dependencies, select_all_uninstall_programs, select_all_windows_settings
@@ -15,32 +12,11 @@ from pathlib import Path
 # Initialize logging
 logger.log_startup()
 
-def is_admin():
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
-        return False
-
 def cleanup_and_exit():
     close_mysql_connection()
     root.destroy()
 
 def main():
-    if not is_admin():
-        pythonw = sys.executable.replace("python.exe", "pythonw.exe")
-        params = ' '.join([f'"{arg}"' for arg in sys.argv])
-        try:
-            ctypes.windll.shell32.ShellExecuteW(
-                None, "runas", pythonw, params, os.getcwd(), 1
-            )
-        except Exception as e:
-            tk.Tk().withdraw()
-            Messagebox.show_error(
-                "Administrator Privileges Required",
-                f"Failed to elevate privileges: {e}"
-            )
-        sys.exit(0)
-
     global root
     root = ttk.Window(themename="darkly")
     root.title("Sustav za automatizaciju instalacije softvera")
