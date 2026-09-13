@@ -39,7 +39,7 @@ def _install_all_programs_worker(page_instance, tasks_to_install, initial_load=F
                     logger.info(f"Installing {winget_id}...", file=Path(__file__).name)
                     try:
                         result = subprocess.run(
-                            ["winget", "install", "--id", winget_id, "--accept-source-agreements", "--accept-package-agreements"],
+                            ["winget", "install", "--id", winget_id, "--accept-source-agreements", "--accept-package-agreements", "--exact"],
                             capture_output=True, text=True, shell=True,
                             timeout=600  # 10 minute timeout for installations
                         )
