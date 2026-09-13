@@ -44,7 +44,7 @@ def _install_all_programs_worker(page_instance, tasks_to_install, initial_load=F
                             capture_output=True, text=True, shell=True,
                             timeout=600  # 10 minute timeout for installations
                         )
-                        success_codes = {0, -1978335148, -1978335189, -1978334963, -1978334962, -1978335211, -1644498124, -1644497995, -1644497994, -2010491637}
+                        success_codes = {0, -1978335148, -1978335189, -1978334963, -1978334962, -1978335189, 0x8A150054, 0x8A15010D, 0x8A15010E, 0x8a15002b}
                         if result.returncode not in success_codes:
                             raise subprocess.CalledProcessError(
                                 returncode=result.returncode, cmd=cmd, output=result.stdout, stderr=result.stderr
