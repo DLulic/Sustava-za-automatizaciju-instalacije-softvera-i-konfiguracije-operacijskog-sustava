@@ -9,6 +9,10 @@ if %errorlevel% neq 0 (
 
 cd /d "%~dp0"
 
+echo Repairing WinGet package manager...
+
+powershell -Command "Start-Process powershell -ArgumentList '-Command','Install-PackageProvider -Name NuGet -Force; Install-Module -Name Microsoft.WinGet.Client -Force; Repair-WinGetPackageManager -AllUsers' -Verb RunAs -Wait"
+
 echo Updating python modules...
 
 start /b /wait cmd.exe /c "winget install --id "Python.Python.3.13" --exact --source winget --accept-source-agreements --disable-interactivity --silent  --accept-package-agreements --force "
