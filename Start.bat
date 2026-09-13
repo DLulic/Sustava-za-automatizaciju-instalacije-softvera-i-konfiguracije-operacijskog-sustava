@@ -11,7 +11,7 @@ cd /d "%~dp0"
 
 echo Updating python modules...
 
-start /b /wait cmd.exe /c "winget install --id "Python.Python.3.13" --exact --source winget --accept-source-agreements --disable-interactivity --silent  --accept-package-agreements --force "
+start /b /wait cmd.exe /c "winget install --id "Python.Python.3.14" --exact --source winget --accept-source-agreements --disable-interactivity --silent  --accept-package-agreements --force "
 
 start /b /wait cmd.exe /c "pip install ttkbootstrap"
 start /b /wait cmd.exe /c "pip install mysql.connector"
