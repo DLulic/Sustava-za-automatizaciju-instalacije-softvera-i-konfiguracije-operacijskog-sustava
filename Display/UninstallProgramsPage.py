@@ -39,16 +39,17 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
                 logger.info(f"Uninstalling {program_name} using {source}...", file=Path(__file__).name)
                 if source == "Winget":
                     try:
+                        cmd = f"winget uninstall --id {program_name} --force --accept-package-agreements --accept-source-agreements --silent"
                         result = subprocess.run(
-                            ["winget", "uninstall", "--id", program_name],
+                            cmd,
                             capture_output=True, text=True, shell=True,
                             timeout=300  # 5 minute timeout
                         )
                         # Winget success codes: 0 (success), 0x8A15002B (already uninstalled), etc.
-                        success_codes = {0, -1978335148, -1978335189, -1978334963, -1978334962, -1978335189, -1978335211, -1978335209, -1978335179, -1978335212, 0x8A150054, 0x8A15010D, 0x8A15010E, 0x8a15002b, 0x8A150015, 0x8A150017, 0x8A150035, 0x8A150014}
+                        success_codes = {0, -1978335148, -1978335189, -1978334963, -1978334962, -1978335211, -1978335209, -1978335179, -1978335212, -1644498124, -1644497995, -1644497994, -2010491637, -1644498125, -1644498123, -1644498101, -1644498100}
                         if result.returncode not in success_codes:
                             raise subprocess.CalledProcessError(
-                                returncode=result.returncode, cmd=result.args, output=result.stdout, stderr=result.stderr
+                                returncode=result.returncode, cmd=cmd, output=result.stdout, stderr=result.stderr
                             )
                         logger.info(f"Successfully uninstalled or already absent: {program_name}.", file=Path(__file__).name)
                     except subprocess.TimeoutExpired:
@@ -58,11 +59,11 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
                         logger.error(f"Failed to uninstall {program_name} (winget).\n--- Winget Output ---\nSTDOUT: {e.output}\nSTDERR: {e.stderr}\n---------------------", file=Path(__file__).name)
                         task_successful = False
                 else:
-                    command = f"Get-AppxPackage *{program_name}* | Remove-AppxPackage"
+                    command = f"Get-AppxPackage *{program_name}* | Remove-AppxPackage -AllUsers"
                     try:
                         result = subprocess.run(
                             ["powershell.exe", "-Command", command],
-                            capture_output=True, text=True, shell=True,
+                            capture_output=True, text=True, shell=False,
                             timeout=300  # 5 minute timeout
                         )
                         if result.returncode != 0:
