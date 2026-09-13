@@ -39,7 +39,7 @@ def _uninstall_all_programs_worker(page_instance, tasks_to_uninstall, initial_lo
                 logger.info(f"Uninstalling {program_name} using {source}...", file=Path(__file__).name)
                 if source == "Winget":
                     try:
-                        cmd = f"winget uninstall --id {program_name} --force --accept-package-agreements --accept-source-agreements --silent"
+                        cmd = f"winget uninstall --id {program_name} --force --accept-source-agreements --silent"
                         result = subprocess.run(
                             cmd,
                             capture_output=True, text=True, shell=True,
